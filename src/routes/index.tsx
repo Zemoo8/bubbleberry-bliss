@@ -41,132 +41,110 @@ function Index() {
   );
 }
 
-/* HERO: matches Midori reference — title, centered cup, flavor cards row, bg morphs on flavor change */
+/* HERO — Midori-style: script logo top-left, giant sans headline with cup overlapping, flavor cards bottom */
 function Hero({ active, setActive }: { active: typeof flavors[0]; setActive: (f: typeof flavors[0]) => void }) {
   return (
-    <section id="top" className="px-4 pt-4 pb-4">
-      <div
-        className="relative mx-auto max-w-[1500px] rounded-[2.5rem] overflow-hidden min-h-[96vh] p-3 md:p-4 shadow-2xl transition-colors duration-[1200ms] ease-out"
-        style={{ background: "var(--flavor-deep)" }}
-      >
-        {/* inner framed stage */}
-        <div className="relative h-full min-h-[92vh] rounded-[2rem] border border-white/15 overflow-hidden transition-colors duration-[1200ms] ease-out"
-             style={{ background: "var(--flavor)" }}>
+    <section
+      id="top"
+      className="relative min-h-screen overflow-hidden transition-colors duration-[1200ms] ease-out"
+      style={{ background: `radial-gradient(ellipse at 50% 65%, var(--flavor) 0%, var(--flavor-deep) 60%, color-mix(in oklab, var(--flavor-deep) 70%, black) 100%)` }}
+    >
+      {/* soft floating fruit/leaf blurs that match flavor */}
+      <div className="pointer-events-none absolute top-[30%] left-[6%] size-32 rounded-full blur-2xl animate-blob" style={{ background: "var(--flavor)", opacity: 0.6 }} />
+      <div className="pointer-events-none absolute top-[40%] right-[8%] size-40 rounded-full blur-2xl animate-blob" style={{ background: "var(--flavor)", opacity: 0.5, animationDelay: "-5s" }} />
+      <div className="pointer-events-none absolute bottom-[20%] left-[15%] size-24 rounded-full blur-2xl animate-blob" style={{ background: "var(--flavor-deep)", opacity: 0.5, animationDelay: "-8s" }} />
 
-          {/* atmospheric blobs */}
-          <div className="pointer-events-none absolute -top-40 -left-40 size-[36rem] rounded-full bg-white/20 blur-3xl animate-blob" />
-          <div className="pointer-events-none absolute -bottom-48 -right-32 size-[40rem] rounded-full mix-blend-overlay blur-3xl animate-blob"
-               style={{ background: "var(--flavor-deep)", animationDelay: "-6s" }} />
+      {/* TOP NAV */}
+      <header className="absolute top-6 left-0 right-0 z-30 px-8 flex items-center justify-between">
+        <a href="#top" className="font-display text-4xl text-cream leading-none tracking-tight">booble</a>
+        <nav className="hidden md:flex items-center gap-8 text-sm font-medium text-cream/90">
+          <a href="#flavors" className="hover:text-cream transition">Menu</a>
+          <a href="#why" className="hover:text-cream transition">Why us</a>
+          <a href="#reviews" className="hover:text-cream transition">Reviews</a>
+          <a href="#visit" className="hover:text-cream transition">Visit</a>
+        </nav>
+        <div className="flex items-center gap-4">
+          <a href={`tel:+216${shop.phone.replace(/\s/g, "")}`} className="hidden md:inline text-sm font-medium text-cream/90 hover:text-cream">Call us</a>
+          <a href="#visit" className="rounded-full bg-cream text-ink px-5 py-2 text-sm font-semibold hover:bg-white transition">Order now</a>
+        </div>
+      </header>
 
-          {/* TOP BAR */}
-          <div className="absolute top-5 left-5 right-5 z-30 flex items-center justify-between text-[11px] uppercase tracking-[0.25em] text-white/85 font-medium">
-            <span className="flex items-center gap-2">
-              <span className="size-2 rounded-full bg-white animate-pulse" /> ui/ux animation case
-            </span>
-            <span className="hidden md:inline">booble la marsa · 2026</span>
-          </div>
+      {/* CENTER — title + cup overlapping */}
+      <div className="relative z-10 pt-32 pb-48 flex flex-col items-center text-center px-6">
+        <p className="text-cream/90 text-sm md:text-base tracking-[0.35em] uppercase font-semibold mb-3">Choose your</p>
 
-          {/* NAV */}
-          <header className="absolute top-16 left-5 right-5 z-30 flex items-center justify-between">
-            <a href="#top" className="font-display text-4xl text-white leading-none tracking-tight">booble</a>
-            <nav className="hidden md:flex items-center gap-2 bg-white/15 backdrop-blur-md rounded-full px-2 py-1.5 border border-white/20">
-              {["Flavors", "Why", "Reviews", "Visit"].map((l) => (
-                <a key={l} href={`#${l.toLowerCase()}`} className="text-white/90 text-sm font-medium px-4 py-1.5 rounded-full hover:bg-white/20 transition">
-                  {l}
-                </a>
-              ))}
-            </nav>
-            <div className="flex items-center gap-2">
-              <a href={`tel:+216${shop.phone.replace(/\s/g, "")}`} className="hidden md:inline text-white/85 text-sm font-medium px-4 py-2">Sign in</a>
-              <a href="#visit" className="rounded-full bg-cream text-ink px-5 py-2.5 text-sm font-semibold hover:bg-white transition">
-                Visit us
-              </a>
-            </div>
-          </header>
+        <div className="relative w-full max-w-[1200px]">
+          {/* giant headline */}
+          <h1
+            className="text-cream leading-[0.9] uppercase tracking-tight"
+            style={{ fontFamily: "var(--font-headline)", fontSize: "clamp(4rem, 16vw, 12rem)" }}
+          >
+            booble tea
+          </h1>
 
-          {/* CENTER STAGE */}
-          <div className="relative h-full min-h-[92vh] flex flex-col items-center justify-center text-center px-6 pt-24 pb-44">
-            <p className="font-serif italic text-base md:text-lg text-white/85 mb-2 tracking-wide">choose your</p>
-            <h1 className="font-display text-[18vw] md:text-[12rem] leading-[0.85] text-white drop-shadow-[0_4px_30px_rgba(0,0,0,0.25)]">
-              booble
-            </h1>
-
-            {/* meta strip */}
-            <div className="mt-4 flex items-center gap-8 text-[11px] uppercase tracking-[0.3em] text-white/75 font-medium">
-              <span>since 2019</span>
-              <span className="h-px w-12 bg-white/40" />
-              <span>la marsa · tunis</span>
-              <span className="h-px w-12 bg-white/40 hidden md:block" />
-              <span className="hidden md:inline">4.7 ★ · {shop.reviewCount} reviews</span>
-            </div>
-
-            {/* CUP — centered, floating, contents tint via hue-rotate */}
-            <div className="relative mt-[-1rem] md:mt-[-2rem] flex-1 w-full flex items-end justify-center">
-              {/* glow halo behind cup */}
-              <div className="absolute inset-0 flex items-center justify-center">
-                <div
-                  key={active.id + "-halo"}
-                  className="size-[60%] max-w-[520px] aspect-square rounded-full blur-3xl animate-draw-in"
-                  style={{ background: "var(--flavor-deep)", opacity: 0.55 }}
-                />
-              </div>
-              {/* pedestal shadow */}
-              <div className="absolute bottom-0 w-72 h-6 rounded-full bg-black/30 blur-xl" />
+          {/* cup overlapping the headline */}
+          <div className="absolute inset-0 flex items-start justify-center pointer-events-none">
+            <div className="relative mt-[-2rem] md:mt-[-3rem]">
+              <div className="absolute inset-0 m-auto size-[420px] rounded-full blur-3xl" style={{ background: "var(--flavor-deep)", opacity: 0.7 }} />
               <img
                 key={active.id + "-cup"}
                 src={cupImg}
                 alt={`${active.name} bubble tea`}
                 width={1024}
                 height={1536}
-                className="relative h-[58vh] md:h-[62vh] w-auto object-contain drop-shadow-2xl animate-float-cup"
+                className="relative h-[68vh] w-auto object-contain drop-shadow-[0_30px_50px_rgba(0,0,0,0.4)] animate-float-cup"
                 style={{ filter: `hue-rotate(${hueShift(active.id)}deg) saturate(1.15)` }}
               />
-              {/* flavor label badge */}
-              <div key={active.id + "-badge"} className="absolute top-6 left-1/2 -translate-x-1/2 animate-draw-in">
-                <span className="rounded-full bg-cream/95 text-ink px-4 py-1.5 text-xs font-semibold tracking-wide">
-                  #{(flavors.indexOf(active) + 1).toString().padStart(2, "0")} · {active.name.toLowerCase()}
-                </span>
-              </div>
             </div>
           </div>
 
-          {/* FLAVOR CARDS — bottom row, like the reference */}
-          <div id="flavors" className="absolute bottom-6 left-0 right-0 z-30 px-6">
-            <div className="mx-auto max-w-4xl">
-              <div className="flex gap-3 overflow-x-auto pb-2 justify-center scrollbar-thin">
-                {flavors.map((f) => {
-                  const isActive = f.id === active.id;
-                  return (
-                    <button
-                      key={f.id}
-                      onClick={() => setActive(f)}
-                      className={`group shrink-0 flex flex-col items-center gap-2 rounded-2xl p-3 border transition-all duration-300 ${
-                        isActive
-                          ? "bg-cream border-cream scale-110 shadow-2xl"
-                          : "bg-white/15 border-white/25 backdrop-blur-md hover:scale-105 hover:bg-white/25"
-                      }`}
-                      style={{ minWidth: "104px" }}
-                    >
-                      <div
-                        className="size-14 rounded-xl flex items-center justify-center transition-transform group-hover:rotate-6"
-                        style={{ background: f.color }}
-                      >
-                        <span className="font-display text-2xl text-primary leading-none">
-                          {f.name[0].toLowerCase()}
-                        </span>
-                      </div>
-                      <span className={`text-xs font-semibold ${isActive ? "text-ink" : "text-white"}`}>
-                        {f.name}
-                      </span>
-                    </button>
-                  );
-                })}
-              </div>
-              <p key={active.id + "-note"} className="text-center text-white/90 font-serif italic text-sm md:text-base mt-3 animate-draw-in max-w-md mx-auto">
-                "{active.note}"
-              </p>
-            </div>
+          {/* mossy pedestal under cup */}
+          <div className="absolute left-1/2 -translate-x-1/2 top-[calc(100%+8rem)] md:top-[calc(100%+12rem)] w-[380px] h-[120px] rounded-[50%] pointer-events-none"
+               style={{ background: "radial-gradient(ellipse at center top, oklch(0.38 0.08 135) 0%, oklch(0.28 0.06 135) 60%, transparent 100%)", filter: "blur(2px)" }} />
+
+          {/* side labels */}
+          <div className="absolute left-0 top-[55%] text-cream/90 text-xs md:text-sm tracking-[0.3em] uppercase font-semibold hidden md:block">
+            since 2019
           </div>
+          <div className="absolute right-0 top-[55%] text-cream/90 text-xs md:text-sm tracking-[0.3em] uppercase font-semibold hidden md:block">
+            best of la marsa · {shop.rating}★
+          </div>
+        </div>
+      </div>
+
+      {/* FLAVOR CARDS — bottom, with cup thumbnails */}
+      <div id="flavors" className="absolute bottom-6 left-0 right-0 z-30 px-6">
+        <div className="mx-auto max-w-5xl">
+          <div className="flex gap-3 overflow-x-auto pb-2 justify-center">
+            {flavors.map((f) => {
+              const isActive = f.id === active.id;
+              return (
+                <button
+                  key={f.id}
+                  onClick={() => setActive(f)}
+                  className={`group shrink-0 flex flex-col items-center gap-2 rounded-2xl p-3 border transition-all duration-300 ${
+                    isActive
+                      ? "scale-110 shadow-2xl border-transparent"
+                      : "bg-cream/95 border-cream/30 hover:scale-105"
+                  }`}
+                  style={{ minWidth: "108px", background: isActive ? f.color : undefined }}
+                >
+                  <div className="relative size-16 rounded-xl overflow-hidden flex items-center justify-center bg-cream/50">
+                    <img
+                      src={cupImg}
+                      alt={f.name}
+                      className="h-full w-auto object-contain"
+                      style={{ filter: `hue-rotate(${hueShift(f.id)}deg) saturate(1.2)` }}
+                    />
+                  </div>
+                  <span className="text-xs font-semibold text-ink">{f.name}</span>
+                </button>
+              );
+            })}
+          </div>
+          <p key={active.id + "-note"} className="text-center text-cream/90 font-serif italic text-sm mt-3 animate-draw-in max-w-md mx-auto">
+            "{active.note}"
+          </p>
         </div>
       </div>
     </section>
