@@ -315,7 +315,7 @@ function Visit() {
           <iframe
             title="Booble La Marsa map"
             src="https://www.google.com/maps?q=2+Rue+Imam+Chafai,+Marsa+2070&output=embed"
-            className="w-full h-full grayscale"
+            className="w-full h-full"
             loading="lazy"
           />
         </div>
