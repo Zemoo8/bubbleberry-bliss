@@ -150,3 +150,16 @@
   to   { opacity: 1; transform: translateY(0) scale(1); }
 }
 .reveal { animation: reveal-up 900ms cubic-bezier(.2,.7,.2,1) both; }
+
+/* Floating fruit motion + entrance */
+@keyframes fruit-float {
+  0%, 100% { translate: 0 0; }
+  50%      { translate: 0 -22px; }
+}
+@keyframes fruit-pop {
+  0%   { opacity: 0; scale: 0.4; }
+  60%  { opacity: 1; scale: 1.08; }
+  100% { scale: 1; }
+}
+.animate-fruit-float { animation: fruit-float 7s ease-in-out infinite; }
+.fruit-pop { animation: fruit-pop 900ms cubic-bezier(.2,.8,.2,1) both, fruit-float 7s ease-in-out infinite; }
