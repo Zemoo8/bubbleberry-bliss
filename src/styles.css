@@ -42,29 +42,29 @@
 
 :root {
   --radius: 1.25rem;
-  --cream: oklch(0.95 0.03 95);
-  --ink: oklch(0.25 0.04 130);
+  --cream: oklch(0.97 0.02 80);
+  --ink: oklch(0.22 0.04 30);
   --background: var(--cream);
   --foreground: var(--ink);
-  --card: oklch(0.98 0.02 95);
+  --card: oklch(1 0 0);
   --card-foreground: var(--ink);
   --popover: oklch(1 0 0);
   --popover-foreground: var(--ink);
-  --primary: oklch(0.38 0.08 135); /* deep matcha */
-  --primary-foreground: oklch(0.95 0.04 95);
-  --secondary: oklch(0.88 0.06 120);
+  --primary: oklch(0.42 0.16 12); /* deep berry */
+  --primary-foreground: var(--cream);
+  --secondary: oklch(0.93 0.04 60);
   --secondary-foreground: var(--ink);
-  --muted: oklch(0.91 0.03 110);
-  --muted-foreground: oklch(0.45 0.04 130);
-  --accent: oklch(0.78 0.14 130); /* bright matcha */
-  --accent-foreground: oklch(0.2 0.05 135);
+  --muted: oklch(0.93 0.02 60);
+  --muted-foreground: oklch(0.45 0.03 40);
+  --accent: oklch(0.82 0.13 50); /* peach */
+  --accent-foreground: var(--ink);
   --destructive: oklch(0.55 0.22 27);
   --destructive-foreground: var(--cream);
-  --border: oklch(0.85 0.04 115);
-  --input: oklch(0.85 0.04 115);
-  --ring: oklch(0.38 0.08 135);
-  --flavor: oklch(0.78 0.14 130);
-  --flavor-deep: oklch(0.5 0.12 135);
+  --border: oklch(0.88 0.02 60);
+  --input: oklch(0.88 0.02 60);
+  --ring: oklch(0.42 0.16 12);
+  --flavor: oklch(0.78 0.16 40);
+  --flavor-deep: oklch(0.55 0.18 35);
   --chart-1: oklch(0.78 0.16 60);
   --chart-2: oklch(0.7 0.18 25);
   --chart-3: oklch(0.6 0.18 350);
