@@ -1,6 +1,13 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import cupImg from "../assets/cup.png";
+import logoImg from "../assets/booble-logo.png";
+import shop1 from "../assets/shop-1.jpg";
+import shop2 from "../assets/shop-2.jpg";
+import shop3 from "../assets/shop-3.jpg";
+import shop4 from "../assets/shop-4.jpg";
+import shop5 from "../assets/shop-5.jpg";
+import shop6 from "../assets/shop-6.jpg";
 import { flavors, reviews, shop } from "../data/booble";
 
 export const Route = createFileRoute("/")({
@@ -24,16 +31,19 @@ function hueShift(id: string) {
 }
 
 function Index() {
-  const [active, setActive] = useState(flavors[2]); // fraise default (berry)
+  const [active, setActive] = useState(flavors[2]);
+  const [preview, setPreview] = useState<typeof flavors[0] | null>(null);
+  const shown = preview ?? active;
   const styleVars = {
-    ["--flavor" as string]: active.color,
-    ["--flavor-deep" as string]: active.deep,
+    ["--flavor" as string]: shown.color,
+    ["--flavor-deep" as string]: shown.deep,
   } as React.CSSProperties;
 
   return (
     <div style={styleVars} className="min-h-screen bg-background text-foreground overflow-x-hidden">
-      <Hero active={active} setActive={setActive} />
+      <Hero active={active} setActive={setActive} preview={preview} setPreview={setPreview} shown={shown} />
       <Why />
+      <Gallery />
       <Reviews />
       <Visit />
       <Footer />
@@ -41,25 +51,31 @@ function Index() {
   );
 }
 
-/* HERO — Midori-style: script logo top-left, giant sans headline with cup overlapping, flavor cards bottom */
-function Hero({ active, setActive }: { active: typeof flavors[0]; setActive: (f: typeof flavors[0]) => void }) {
+function Hero({
+  active, setActive, preview, setPreview, shown,
+}: {
+  active: typeof flavors[0];
+  setActive: (f: typeof flavors[0]) => void;
+  preview: typeof flavors[0] | null;
+  setPreview: (f: typeof flavors[0] | null) => void;
+  shown: typeof flavors[0];
+}) {
   return (
     <section
       id="top"
-      className="relative min-h-screen overflow-hidden transition-colors duration-[1200ms] ease-out"
+      className="relative min-h-screen overflow-hidden transition-colors duration-[900ms] ease-out"
       style={{ background: `radial-gradient(ellipse at 50% 65%, var(--flavor) 0%, var(--flavor-deep) 60%, color-mix(in oklab, var(--flavor-deep) 70%, black) 100%)` }}
     >
-      {/* soft floating fruit/leaf blurs that match flavor */}
       <div className="pointer-events-none absolute top-[30%] left-[6%] size-32 rounded-full blur-2xl animate-blob" style={{ background: "var(--flavor)", opacity: 0.6 }} />
       <div className="pointer-events-none absolute top-[40%] right-[8%] size-40 rounded-full blur-2xl animate-blob" style={{ background: "var(--flavor)", opacity: 0.5, animationDelay: "-5s" }} />
       <div className="pointer-events-none absolute bottom-[20%] left-[15%] size-24 rounded-full blur-2xl animate-blob" style={{ background: "var(--flavor-deep)", opacity: 0.5, animationDelay: "-8s" }} />
 
-      {/* TOP NAV */}
       <header className="absolute top-6 left-0 right-0 z-30 px-8 flex items-center justify-between">
         <a href="#top" className="font-display text-4xl text-cream leading-none tracking-tight">booble</a>
         <nav className="hidden md:flex items-center gap-8 text-sm font-medium text-cream/90">
           <a href="#flavors" className="hover:text-cream transition">Menu</a>
           <a href="#why" className="hover:text-cream transition">Why us</a>
+          <a href="#shop" className="hover:text-cream transition">In the shop</a>
           <a href="#reviews" className="hover:text-cream transition">Reviews</a>
           <a href="#visit" className="hover:text-cream transition">Visit</a>
         </nav>
@@ -69,12 +85,10 @@ function Hero({ active, setActive }: { active: typeof flavors[0]; setActive: (f:
         </div>
       </header>
 
-      {/* CENTER — title + cup overlapping */}
       <div className="relative z-10 pt-32 pb-48 flex flex-col items-center text-center px-6">
         <p className="text-cream/90 text-sm md:text-base tracking-[0.35em] uppercase font-semibold mb-3">Choose your</p>
 
         <div className="relative w-full max-w-[1200px]">
-          {/* giant headline */}
           <h1
             className="text-cream leading-[0.9] uppercase tracking-tight"
             style={{ fontFamily: "var(--font-headline)", fontSize: "clamp(4rem, 16vw, 12rem)" }}
@@ -82,27 +96,32 @@ function Hero({ active, setActive }: { active: typeof flavors[0]; setActive: (f:
             booble tea
           </h1>
 
-          {/* cup overlapping the headline */}
           <div className="absolute inset-0 flex items-start justify-center pointer-events-none">
             <div className="relative mt-[-2rem] md:mt-[-3rem]">
-              <div className="absolute inset-0 m-auto size-[420px] rounded-full blur-3xl" style={{ background: "var(--flavor-deep)", opacity: 0.7 }} />
-              <img
-                key={active.id + "-cup"}
-                src={cupImg}
-                alt={`${active.name} bubble tea`}
-                width={1024}
-                height={1536}
-                className="relative h-[68vh] w-auto object-contain drop-shadow-[0_30px_50px_rgba(0,0,0,0.4)] animate-float-cup"
-                style={{ filter: `hue-rotate(${hueShift(active.id)}deg) saturate(1.15)` }}
-              />
+              <div className="absolute inset-0 m-auto size-[420px] rounded-full blur-3xl transition-colors duration-700" style={{ background: "var(--flavor-deep)", opacity: 0.7 }} />
+              <div className="relative h-[68vh] w-auto animate-float-cup">
+                <img
+                  key={shown.id + "-cup"}
+                  src={cupImg}
+                  alt={`${shown.name} bubble tea`}
+                  width={1024}
+                  height={1536}
+                  className="h-full w-auto object-contain drop-shadow-[0_30px_50px_rgba(0,0,0,0.4)] transition-[filter] duration-700"
+                  style={{ filter: `hue-rotate(${hueShift(shown.id)}deg) saturate(1.15)` }}
+                />
+                {/* logo sticker on cup */}
+                <img
+                  src={logoImg}
+                  alt="Booble logo"
+                  className="absolute left-1/2 top-[58%] -translate-x-1/2 size-[14%] opacity-95 drop-shadow-md select-none"
+                />
+              </div>
             </div>
           </div>
 
-          {/* mossy pedestal under cup */}
           <div className="absolute left-1/2 -translate-x-1/2 top-[calc(100%+8rem)] md:top-[calc(100%+12rem)] w-[380px] h-[120px] rounded-[50%] pointer-events-none"
                style={{ background: "radial-gradient(ellipse at center top, oklch(0.38 0.08 135) 0%, oklch(0.28 0.06 135) 60%, transparent 100%)", filter: "blur(2px)" }} />
 
-          {/* side labels */}
           <div className="absolute left-0 top-[55%] text-cream/90 text-xs md:text-sm tracking-[0.3em] uppercase font-semibold hidden md:block">
             since 2019
           </div>
@@ -112,28 +131,32 @@ function Hero({ active, setActive }: { active: typeof flavors[0]; setActive: (f:
         </div>
       </div>
 
-      {/* FLAVOR CARDS — bottom, with cup thumbnails */}
       <div id="flavors" className="absolute bottom-6 left-0 right-0 z-30 px-6">
         <div className="mx-auto max-w-5xl">
-          <div className="flex gap-3 overflow-x-auto pb-2 justify-center">
+          <div className="flex gap-3 overflow-x-auto pb-2 justify-center" onMouseLeave={() => setPreview(null)}>
             {flavors.map((f) => {
               const isActive = f.id === active.id;
+              const isPreview = preview?.id === f.id;
               return (
                 <button
                   key={f.id}
-                  onClick={() => setActive(f)}
-                  className={`group shrink-0 flex flex-col items-center gap-2 rounded-2xl p-3 border transition-all duration-300 ${
-                    isActive
-                      ? "scale-110 shadow-2xl border-transparent"
-                      : "bg-cream/95 border-cream/30 hover:scale-105"
-                  }`}
-                  style={{ minWidth: "108px", background: isActive ? f.color : undefined }}
+                  onClick={() => { setActive(f); setPreview(null); }}
+                  onMouseEnter={() => setPreview(f)}
+                  onFocus={() => setPreview(f)}
+                  onBlur={() => setPreview(null)}
+                  className={`flavor-chip group shrink-0 flex flex-col items-center gap-2 rounded-2xl p-3 border ${
+                    isActive ? "is-active shadow-2xl border-transparent" : "bg-cream/95 border-cream/30"
+                  } ${isPreview && !isActive ? "is-preview" : ""}`}
+                  style={{
+                    minWidth: "108px",
+                    background: isActive ? f.color : isPreview ? `color-mix(in oklab, ${f.color} 65%, white)` : undefined,
+                  }}
                 >
-                  <div className="relative size-16 rounded-xl overflow-hidden flex items-center justify-center bg-cream/50">
+                  <div className="relative size-16 rounded-xl overflow-hidden flex items-center justify-center bg-cream/50 chip-thumb">
                     <img
                       src={cupImg}
                       alt={f.name}
-                      className="h-full w-auto object-contain"
+                      className="h-full w-auto object-contain transition-transform duration-500"
                       style={{ filter: `hue-rotate(${hueShift(f.id)}deg) saturate(1.2)` }}
                     />
                   </div>
@@ -142,8 +165,8 @@ function Hero({ active, setActive }: { active: typeof flavors[0]; setActive: (f:
               );
             })}
           </div>
-          <p key={active.id + "-note"} className="text-center text-cream/90 font-serif italic text-sm mt-3 animate-draw-in max-w-md mx-auto">
-            "{active.note}"
+          <p key={shown.id + "-note"} className="text-center text-cream/90 font-serif italic text-sm mt-3 animate-draw-in max-w-md mx-auto">
+            "{shown.note}"
           </p>
         </div>
       </div>
@@ -178,13 +201,69 @@ function Why() {
   );
 }
 
+function Gallery() {
+  // Editorial dark masonry section inspired by the reference
+  const tiles: { src: string; tall?: boolean; wide?: boolean; alt: string }[] = [
+    { src: shop1, tall: true, alt: "Booble storefront with neon flamingo" },
+    { src: shop2, tall: true, alt: "New Latte Cheesecake Fraise" },
+    { src: shop6, alt: "Sprinkle crepe cone" },
+    { src: shop3, tall: true, alt: "Two iced bubble teas" },
+    { src: shop4, alt: "Matcha bubble tea" },
+    { src: shop5, wide: true, alt: "Pink interior with rattan chairs" },
+  ];
+  return (
+    <section id="shop" className="bg-ink text-cream py-24 px-4 md:px-8 overflow-hidden">
+      <div className="mx-auto max-w-[1500px]">
+        <div className="flex items-end justify-between flex-wrap gap-6 mb-12">
+          <div>
+            <p className="text-xs uppercase tracking-[0.3em] text-accent mb-6">n° 04 — in the shop</p>
+            <h2 className="font-serif text-5xl md:text-7xl leading-[0.95]">
+              Pink flamingos.<br />
+              <span className="italic text-cream/55">Neon cups. Real chairs.</span>
+            </h2>
+          </div>
+          <a
+            href="https://www.instagram.com/booblelamarsa"
+            target="_blank"
+            rel="noreferrer"
+            className="story-link text-sm text-cream/80 hover:text-cream"
+          >
+            Follow on Instagram →
+          </a>
+        </div>
+
+        <div className="grid grid-cols-2 md:grid-cols-4 auto-rows-[180px] md:auto-rows-[220px] gap-3 md:gap-4">
+          {tiles.map((t, i) => (
+            <figure
+              key={i}
+              className={`reveal relative overflow-hidden rounded-2xl group ${t.tall ? "row-span-2" : ""} ${t.wide ? "col-span-2" : ""}`}
+              style={{ animationDelay: `${i * 90}ms` }}
+            >
+              <img
+                src={t.src}
+                alt={t.alt}
+                loading="lazy"
+                className="absolute inset-0 h-full w-full object-cover transition-transform duration-[1200ms] ease-out group-hover:scale-110"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-ink/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+              <figcaption className="absolute bottom-3 left-4 right-4 text-xs uppercase tracking-widest text-cream translate-y-2 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-500">
+                {t.alt}
+              </figcaption>
+            </figure>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
 function Reviews() {
   const loop = [...reviews, ...reviews];
   return (
     <section id="reviews" className="py-24 overflow-hidden bg-secondary">
       <div className="px-4 max-w-6xl mx-auto grid md:grid-cols-[1fr_2fr] gap-10 items-center mb-12">
         <div>
-          <p className="text-xs uppercase tracking-[0.25em] text-muted-foreground mb-3">n° 03 / the proof</p>
+          <p className="text-xs uppercase tracking-[0.25em] text-muted-foreground mb-3">n° 05 / the proof</p>
           <div className="font-display text-9xl text-primary leading-none">{shop.rating}</div>
           <Stars value={shop.rating} className="mt-3" />
           <p className="mt-3 text-muted-foreground">{shop.reviewCount} reviews on Google</p>
@@ -216,7 +295,7 @@ function Visit() {
     <section id="visit" className="px-4 py-16">
       <div className="mx-auto max-w-[1500px] rounded-[2.5rem] bg-primary text-primary-foreground p-10 md:p-16 grid md:grid-cols-2 gap-10">
         <div>
-          <p className="text-xs uppercase tracking-[0.25em] text-primary-foreground/60 mb-4">n° 04 / come say hi</p>
+          <p className="text-xs uppercase tracking-[0.25em] text-primary-foreground/60 mb-4">n° 06 / come say hi</p>
           <h2 className="font-serif text-5xl md:text-6xl leading-tight mb-8">
             On rue Imam Chafai, <em className="italic">two minutes</em> from the corniche.
           </h2>
