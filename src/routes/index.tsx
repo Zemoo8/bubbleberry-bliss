@@ -8,6 +8,30 @@ import shop3 from "../assets/shop-3.jpg";
 import shop4 from "../assets/shop-4.jpg";
 import shop5 from "../assets/shop-5.jpg";
 import shop6 from "../assets/shop-6.jpg";
+import fMangue from "../assets/fruit-mangue.png";
+import fPeche from "../assets/fruit-peche.png";
+import fFraise from "../assets/fruit-fraise.png";
+import fPassion from "../assets/fruit-passion.png";
+import fMyrtille from "../assets/fruit-myrtille.png";
+import fPomme from "../assets/fruit-pomme.png";
+import fLychee from "../assets/fruit-lychee.png";
+import fCoco from "../assets/fruit-coco.png";
+
+const FRUIT: Record<string, string> = {
+  mangue: fMangue, peche: fPeche, fraise: fFraise, passion: fPassion,
+  myrtille: fMyrtille, pomme: fPomme, lychee: fLychee, coco: fCoco,
+};
+
+// scattered positions for floating fruits (top%, left%, size px, delay s, drift deg)
+const FRUIT_SLOTS = [
+  { top: "18%", left: "8%",  size: 110, delay: 0,   blur: 0,  rot: -12 },
+  { top: "26%", left: "88%", size: 90,  delay: 1.4, blur: 6,  rot: 14 },
+  { top: "62%", left: "4%",  size: 80,  delay: 0.8, blur: 4,  rot: 8 },
+  { top: "55%", left: "92%", size: 130, delay: 2.1, blur: 0,  rot: -18 },
+  { top: "10%", left: "55%", size: 70,  delay: 1.7, blur: 8,  rot: 20 },
+  { top: "70%", left: "70%", size: 95,  delay: 0.5, blur: 2,  rot: -6 },
+];
+
 import { flavors, reviews, shop } from "../data/booble";
 
 export const Route = createFileRoute("/")({
@@ -69,6 +93,28 @@ function Hero({
       <div className="pointer-events-none absolute top-[30%] left-[6%] size-32 rounded-full blur-2xl animate-blob" style={{ background: "var(--flavor)", opacity: 0.6 }} />
       <div className="pointer-events-none absolute top-[40%] right-[8%] size-40 rounded-full blur-2xl animate-blob" style={{ background: "var(--flavor)", opacity: 0.5, animationDelay: "-5s" }} />
       <div className="pointer-events-none absolute bottom-[20%] left-[15%] size-24 rounded-full blur-2xl animate-blob" style={{ background: "var(--flavor-deep)", opacity: 0.5, animationDelay: "-8s" }} />
+
+      {/* floating fruits keyed to active flavor */}
+      <div key={shown.id + "-fruits"} className="pointer-events-none absolute inset-0 z-20">
+        {FRUIT_SLOTS.map((s, i) => (
+          <img
+            key={i}
+            src={FRUIT[shown.id]}
+            alt=""
+            aria-hidden
+            className="absolute animate-fruit-float fruit-pop"
+            style={{
+              top: s.top, left: s.left,
+              width: s.size, height: s.size,
+              transform: `translate(-50%, -50%) rotate(${s.rot}deg)`,
+              filter: s.blur ? `blur(${s.blur}px) drop-shadow(0 12px 18px rgba(0,0,0,.25))` : "drop-shadow(0 14px 22px rgba(0,0,0,.3))",
+              animationDelay: `${s.delay}s`,
+              opacity: s.blur ? 0.85 : 1,
+            }}
+          />
+        ))}
+      </div>
+
 
       <header className="absolute top-6 left-0 right-0 z-30 px-8 flex items-center justify-between">
         <a href="#top" className="font-display text-4xl text-cream leading-none tracking-tight">booble</a>
