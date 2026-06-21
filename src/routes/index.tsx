@@ -94,6 +94,28 @@ function Hero({
       <div className="pointer-events-none absolute top-[40%] right-[8%] size-40 rounded-full blur-2xl animate-blob" style={{ background: "var(--flavor)", opacity: 0.5, animationDelay: "-5s" }} />
       <div className="pointer-events-none absolute bottom-[20%] left-[15%] size-24 rounded-full blur-2xl animate-blob" style={{ background: "var(--flavor-deep)", opacity: 0.5, animationDelay: "-8s" }} />
 
+      {/* floating fruits keyed to active flavor */}
+      <div key={shown.id + "-fruits"} className="pointer-events-none absolute inset-0 z-20">
+        {FRUIT_SLOTS.map((s, i) => (
+          <img
+            key={i}
+            src={FRUIT[shown.id]}
+            alt=""
+            aria-hidden
+            className="absolute animate-fruit-float fruit-pop"
+            style={{
+              top: s.top, left: s.left,
+              width: s.size, height: s.size,
+              transform: `translate(-50%, -50%) rotate(${s.rot}deg)`,
+              filter: s.blur ? `blur(${s.blur}px) drop-shadow(0 12px 18px rgba(0,0,0,.25))` : "drop-shadow(0 14px 22px rgba(0,0,0,.3))",
+              animationDelay: `${s.delay}s`,
+              opacity: s.blur ? 0.85 : 1,
+            }}
+          />
+        ))}
+      </div>
+
+
       <header className="absolute top-6 left-0 right-0 z-30 px-8 flex items-center justify-between">
         <a href="#top" className="font-display text-4xl text-cream leading-none tracking-tight">booble</a>
         <nav className="hidden md:flex items-center gap-8 text-sm font-medium text-cream/90">
