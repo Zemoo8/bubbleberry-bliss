@@ -36,6 +36,7 @@
   --color-cream: var(--cream);
   --color-ink: var(--ink);
   --font-display: "Caveat", cursive;
+  --font-headline: "Archivo Black", "Inter", sans-serif;
   --font-serif: "Fraunces", serif;
   --font-sans: "Inter", sans-serif;
 }
