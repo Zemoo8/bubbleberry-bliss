@@ -93,7 +93,7 @@ function Index() {
   const summary = `${baseName} · ${flavor.name} ${t.syrupWord} · ${bobaName}`;
 
   return (
-    <div ref={rootRef} className="min-h-screen bg-background text-foreground overflow-x-clip">
+    <div ref={rootRef} className="min-h-screen bg-background text-foreground overflow-x-hidden">
       <style>{`
         body { cursor: url(${cursorNav}) 3 2, auto; }
         a, button, [role="button"] { cursor: url(${cursorHand}) 8 1, pointer; }
