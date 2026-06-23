@@ -1,6 +1,15 @@
 // src/routes/index.tsx  — REPLACE your existing file with this
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
+
+// Google Analytics types
+declare global {
+  interface Window {
+    dataLayer: any[];
+    gtag: (...args: any[]) => void;
+  }
+}
+
 import cupImg from "../assets/cup.png";
 import logoMarkWhite from "../assets/logo-mark-white.png";
 import logoCup from "../assets/logo-cup.png";
@@ -20,6 +29,7 @@ import fMyrtille from "../assets/fruit-myrtille.png";
 import fPomme from "../assets/fruit-pomme.png";
 import fLychee from "../assets/fruit-lychee.png";
 import fCoco from "../assets/fruit-coco.png";
+import fChoco from "../assets/fruit-choco.png";
 import mFraise from "../assets/menu-fraise.png";
 import mCaramel from "../assets/menu-caramel.png";
 import mTaro from "../assets/menu-taro.png";
@@ -28,7 +38,7 @@ import mChoco from "../assets/menu-choco.png";
 import mMangue from "../assets/menu-mangue.png";
 import { flavors, bases, bobas, sizes, menu, reviews, hoursWeekly, shop, TXT, type Flavor, type Lang } from "../data/booble";
 
-const FRUIT: Record<string, string> = { mangue: fMangue, peche: fPeche, fraise: fFraise, passion: fPassion, myrtille: fMyrtille, pomme: fPomme, lychee: fLychee, coco: fCoco };
+const FRUIT: Record<string, string> = { mangue: fMangue, peche: fPeche, fraise: fFraise, passion: fPassion, myrtille: fMyrtille, pomme: fPomme, lychee: fLychee, coco: fCoco, choco: fChoco };
 const MENU_IMG: Record<string, string> = { fraise: mFraise, caramel: mCaramel, taro: mTaro, matcha: mMatcha, choco: mChoco, mangue: mMangue };
 
 const FRUIT_SLOTS = [
@@ -39,7 +49,7 @@ const FRUIT_SLOTS = [
   { top: "10%", left: "55%", size: 70,  delay: 1.7, blur: 7, rot: 20,  depth: 0.18 },
   { top: "70%", left: "70%", size: 95,  delay: 0.5, blur: 2, rot: -6,  depth: 0.26 },
 ];
-const TOP3 = ["fraise", "mangue", "passion"];
+const TOP3 = ["fraise", "mangue", "passion", "myrtille", "pomme", "choco"];
 
 // Icons for the "New to boba?" cards — burgundy via currentColor (text-primary)
 const NEW_ICONS = [
@@ -73,7 +83,17 @@ export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
       { title: "Booble — Bubble Tea La Marsa" },
-      { name: "description", content: "Booble La Marsa: real Taiwanese tea, fresh fruit syrups and homemade tapioca. 4.7★ on Google. 2 Rue Imam Chafai, Marsa 2070." },
+      { name: "description", content: "Booble La Marsa: real Taiwanese tea, fresh fruit syrups and homemade tapioca. 4.7★ on Google (230+ reviews). 2 Rue Imam Chafai, Marsa 2070." },
+      { property: "og:title", content: "Booble — Bubble Tea La Marsa" },
+      { property: "og:description", content: "Premium bubble tea with real Taiwanese tea, fresh fruit syrups & homemade tapioca. 4.7★ rated. Order online or visit us in La Marsa." },
+      { property: "og:type", content: "business.business" },
+      { property: "og:url", content: "https://booble.tn" },
+      { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:title", content: "Booble — Bubble Tea La Marsa" },
+      { name: "twitter:description", content: "Real Taiwanese tea, fresh fruit syrups, homemade tapioca. 4.7★ on Google." },
+    ],
+    links: [
+      { rel: "canonical", href: "https://booble.tn" },
     ],
   }),
   component: Index,
@@ -87,7 +107,18 @@ function Index() {
   const [sizeId, setSizeId] = useState("medium");
   const [heroId, setHeroId] = useState("fraise");
   const timer = useRef<ReturnType<typeof setInterval> | null>(null);
+  const rotateTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
   const rootRef = useRef<HTMLDivElement>(null);
+  // --- fruit orbital flavour transition (native Web Animations API, no extra deps) ---
+  const fruitRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const animatingRef = useRef(false);
+  const queuedDir = useRef<number | null>(null);
+  const genRef = useRef(0); // generation token: stale timers from old loops no-op
+  const phaseTimers = useRef<ReturnType<typeof setTimeout>[]>([]);
+  const animRegistry = useRef<Animation[]>([]); // every Animation ever created, so none can leak across loops
+  const cupWrapRef = useRef<HTMLDivElement>(null); // hero cup + logo, spun & scaled in sync with the fruit orbit
+  const heroIdRef = useRef(heroId);
+  heroIdRef.current = heroId;
 
   const t = TXT[lang];
   const fr = lang === "fr";
@@ -98,19 +129,180 @@ function Index() {
   const hero = flavors.find((f) => f.id === heroId) ?? flavors[2];
 
   const startRotate = () => {
-    if (timer.current) clearInterval(timer.current);
-    timer.current = setInterval(() => setHeroId((id) => TOP3[(TOP3.indexOf(id) + 1) % TOP3.length]), 3600);
+    if (timer.current) {
+      clearInterval(timer.current);
+      timer.current = null;
+    }
+    if (rotateTimeout.current) {
+      clearTimeout(rotateTimeout.current);
+      rotateTimeout.current = null;
+    }
+    rotateTimeout.current = setTimeout(() => cycleHero(-1, true), 4200);
   };
-  const cycleHero = (dir: number) => {
-    setHeroId((id) => TOP3[(TOP3.indexOf(id) + dir + TOP3.length) % TOP3.length]);
-    startRotate();
+
+  // Clean orbital flavour switch: the existing fruit sprites swing in a fluid
+  // circular arc around the cup while scaling down, the flavour swaps at scale 0
+  // mid-arc, then the new sprites swoop outward along the same orbital momentum.
+  // No flash. Touches ONLY the fruit wrappers — layout/typography untouched.
+  const cycleHero = (dir: number, isAuto?: boolean) => {
+    if (!isAuto) startRotate(); // manual click resets the auto-advance timer
+    const id = heroIdRef.current;
+    const target = TOP3[(TOP3.indexOf(id) + dir + TOP3.length) % TOP3.length];
+
+    const reduce = typeof window !== "undefined" && window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+    const els = fruitRefs.current.filter(Boolean) as HTMLDivElement[];
+    // Fallback: no motion support / reduced-motion → plain swap (never breaks)
+    if (reduce || !els.length || typeof els[0].animate !== "function") { setHeroId(target); return; }
+
+    // Debounce: if an orbit is mid-flight, remember the latest direction and bail
+    if (animatingRef.current) { queuedDir.current = dir; return; }
+    animatingRef.current = true;
+
+    // every loop gets a fresh generation; any timer/callback from an older loop
+    // checks this token and no-ops, so a stale motion state can never carry over
+    const gen = ++genRef.current;
+    phaseTimers.current.forEach(clearTimeout);
+    phaseTimers.current = [];
+
+    // hard reset to the clean resting transform — kills EVERY leftover animation
+    // (including finished fill:forwards ones that accumulate, and orphans left on
+    // nodes React re-attached mid-loop) on all sprites, via an explicit registry
+    const hardReset = () => {
+      animRegistry.current.forEach((an) => { try { an.cancel(); } catch { /* already gone */ } });
+      animRegistry.current = [];
+      (fruitRefs.current.filter(Boolean) as HTMLDivElement[]).forEach((el) => {
+        el.getAnimations().forEach((an) => an.cancel());
+        el.style.opacity = "";
+        el.style.transform = "translate(-50%,-50%)";
+      });
+      if (cupWrapRef.current) cupWrapRef.current.style.transform = ""; // cup + logo back to rest
+    };
+    hardReset();
+
+    const vx = window.innerWidth / 2, vy = window.innerHeight / 2;
+    // each sprite's polar position relative to screen-centre (the cup)
+    const data = els.map((el) => {
+      const r = el.getBoundingClientRect();
+      const px = (r.left + r.width / 2) - vx;
+      const py = (r.top + r.height / 2) - vy;
+      return { el, px, py, r0: Math.hypot(px, py) || 1, a0: Math.atan2(py, px) };
+    });
+
+    const SWEEP = Math.PI * 0.85;                 // arc length each fruit travels (~150°)
+    const STEPS = 14;                             // sampled points → smooth curved path
+    const EASE_IN = "cubic-bezier(0.45,0,0.55,1)"; // gentle accelerate into the orbit
+    const SWOOP = "cubic-bezier(0.25,1,0.5,1)";    // premium fluid swoop outward
+
+    // build a curved-path keyframe set by sampling points along a spiral arc
+    const arc = (px: number, py: number, r0: number, a0: number, inward: boolean) => {
+      const frames: Keyframe[] = [];
+      for (let s = 0; s <= STEPS; s++) {
+        const u = s / STEPS;
+        const ang = a0 + SWEEP * (inward ? u : (u - 1)) * dir; // BOTH phases sweep the same rotational direction (in and out match)
+        const radius = inward ? r0 * (1 - u) : r0 * u;
+        const ox = radius * Math.cos(ang) - px;
+        const oy = radius * Math.sin(ang) - py;
+        const scl = inward ? 1 - u : u;
+        const spin = inward ? u * 200 * dir : (1 - u) * -160 * dir;
+        frames.push({
+          // keep the resting -50%,-50% centering in EVERY keyframe so the arc shares the
+          // exact baseline that cleanup/settle reset to — no start-jump, no end-snap on re-loop
+          transform: `translate(calc(-50% + ${ox.toFixed(1)}px), calc(-50% + ${oy.toFixed(1)}px)) scale(${scl.toFixed(3)}) rotate(${spin.toFixed(1)}deg)`,
+          opacity: (inward ? u > 0.85 : u < 0.15) ? 0.7 : 1,
+        });
+      }
+      return frames;
+    };
+
+    // A loop is owned by its generation. Any older callback that fires late sees a
+    // newer genRef and bails, so two loops can never fight over the sprites.
+    const mine = () => gen === genRef.current;
+
+    const settle = () => {
+      if (!mine() || !animatingRef.current) return;
+      hardReset();                 // always end on the clean resting transform
+      animatingRef.current = false;
+      if (queuedDir.current != null) { const d = queuedDir.current; queuedDir.current = null; cycleHero(d, true); return; }
+      if (rotateTimeout.current) clearTimeout(rotateTimeout.current);
+      rotateTimeout.current = setTimeout(() => cycleHero(-1, true), 4200);
+    };
+
+    // ORIGINAL animation, untouched: inward orbit → swap at scale 0 → outward swoop
+    // chained right as the inward arc lands, so the momentum flows continuously.
+    const run = async () => {
+      // PHASE 1 — orbit inward: swing along the arc while scaling to 0
+      let lastIn: Animation | null = null;
+      data.forEach(({ el, px, py, r0, a0 }, i) => {
+        lastIn = el.animate(arc(px, py, r0, a0, true), { duration: 440, delay: i * 16, easing: EASE_IN, fill: "forwards" });
+        animRegistry.current.push(lastIn);
+      });
+
+      // CUP + logo — a restrained "settle": a subtle dip + scale breath as if
+      // reacting to the new pour, then back to rest. No spin (gimmicky on a brand
+      // hero); the orbiting fruit + colour crossfade carry the moment.
+      // composite:"add" layers this over the idle float.
+      if (cupWrapRef.current) {
+        const cupAnim = cupWrapRef.current.animate(
+          [
+            { transform: "translateY(0px) scale(1)", offset: 0, easing: "cubic-bezier(0.4,0,0.2,1)" },
+            { transform: "translateY(12px) scale(0.96)", offset: 0.42, easing: "cubic-bezier(0.18,0.9,0.25,1)" },
+            { transform: "translateY(0px) scale(1)", offset: 1 },
+          ],
+          { duration: 1200, fill: "forwards", composite: "add" }
+        );
+        animRegistry.current.push(cupAnim);
+      }
+
+      // PHASE 2 — swap sprites + gradient at scale 0, mid-arc (~400ms)
+      phaseTimers.current.push(setTimeout(() => { if (mine()) setHeroId(target); }, 400));
+
+      try { if (lastIn) await (lastIn as Animation).finished; } catch { /* re-render can cancel it; watchdog still settles */ }
+      if (!mine()) return;
+
+      // PHASE 3 — swoop outward: continues the same orbital momentum into the resting spots
+      let lastOut: Animation | null = null;
+      const fresh = fruitRefs.current.filter(Boolean) as HTMLDivElement[];
+      data.forEach((d0, i) => {
+        const el = fresh[i] ?? d0.el; // re-resolve in case React re-attached the node
+        lastOut = el.animate(arc(d0.px, d0.py, d0.r0, d0.a0, false), { duration: 720, delay: i * 44, easing: SWOOP, fill: "forwards" });
+        animRegistry.current.push(lastOut);
+      });
+
+      try { if (lastOut) await (lastOut as Animation).finished; } catch { /* watchdog settles */ }
+      settle();
+    };
+
+    // Watchdog: if a .finished promise ever dangles (a mid-flight re-render cancels
+    // the animation it was awaiting), force a clean settle so the loop ALWAYS keeps
+    // going forever. Covers the full sequence (520ms inward + 940ms outward) + margin.
+    phaseTimers.current.push(setTimeout(() => settle(), 1700));
+
+    void run();
   };
   useEffect(() => {
+    // Google Analytics init
+    if (typeof window !== "undefined" && !window.gtag) {
+      const script = document.createElement("script");
+      script.async = true;
+      script.src = "https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX";
+      document.head.appendChild(script);
+      window.dataLayer = window.dataLayer || [];
+      function gtag(...args: any[]) { window.dataLayer.push(arguments); }
+      window.gtag = gtag;
+      gtag("js", new Date());
+      gtag("config", "G-XXXXXXXXXX", { page_path: "/" });
+    }
     startRotate();
     const onScroll = () => rootRef.current?.style.setProperty("--sy", String(window.scrollY || 0));
     window.addEventListener("scroll", onScroll, { passive: true });
     onScroll();
-    return () => { if (timer.current) clearInterval(timer.current); window.removeEventListener("scroll", onScroll); };
+    return () => {
+      if (timer.current) clearInterval(timer.current);
+      if (rotateTimeout.current) clearTimeout(rotateTimeout.current);
+      phaseTimers.current.forEach(clearTimeout);
+      genRef.current++; // invalidate any in-flight loop so its callbacks no-op
+      window.removeEventListener("scroll", onScroll);
+    };
   }, []);
 
   const heroVars = { ["--flavor" as string]: hero.color, ["--flavor-deep" as string]: hero.deep } as React.CSSProperties;
@@ -135,7 +327,7 @@ function Index() {
             <div
               key={f.id}
               aria-hidden
-              className="absolute inset-0 transition-opacity duration-700 ease-[cubic-bezier(.4,0,.2,1)]"
+              className="absolute inset-0 transition-opacity duration-[800ms] ease-[cubic-bezier(.4,0,.2,1)]"
               style={{
                 opacity: f.id === heroId ? 1 : 0,
                 background: `radial-gradient(ellipse at 50% 65%, ${f.color} 0%, ${f.deep} 60%, color-mix(in oklab, ${f.deep} 70%, black) 100%)`,
@@ -150,7 +342,9 @@ function Index() {
         <div className="pointer-events-none absolute inset-0 z-20">
           {FRUIT_SLOTS.map((s, i) => (
             <div key={i} className="absolute" style={{ top: s.top, left: s.left, width: s.size, height: s.size, transform: `translate(-50%,-50%) translateY(calc(var(--sy,0) * ${s.depth}px))` }}>
-              <img src={FRUIT[hero.id]} alt="" aria-hidden className="w-full h-full object-contain animate-fruit-float" style={{ transform: `rotate(${s.rot}deg)`, filter: s.blur ? `blur(${s.blur}px) drop-shadow(0 12px 18px rgba(0,0,0,.25))` : "drop-shadow(0 14px 22px rgba(0,0,0,.3))", animationDelay: `${s.delay}s`, opacity: s.blur ? 0.85 : 1 }} />
+              <div ref={(el) => { fruitRefs.current[i] = el; }} className="absolute left-1/2 top-1/2 h-full w-full -translate-x-1/2 -translate-y-1/2 will-change-transform">
+                <img src={FRUIT[hero.id]} alt="" aria-hidden className="w-full h-full object-contain" style={{ transform: `rotate(${s.rot}deg)`, filter: s.blur ? `blur(${s.blur}px) drop-shadow(0 12px 18px rgba(0,0,0,.25))` : "drop-shadow(0 14px 22px rgba(0,0,0,.3))", opacity: s.blur ? 0.85 : 1 }} />
+              </div>
             </div>
           ))}
         </div>
@@ -190,8 +384,8 @@ function Index() {
             <div className="absolute inset-0 flex items-start justify-center pointer-events-none">
               <div className="relative mt-[-2rem] md:mt-[-3rem]" style={{ transform: "translateY(calc(var(--sy,0) * -0.05px))" }}>
                 <div className="absolute inset-0 m-auto size-[420px] rounded-full blur-3xl transition-colors duration-700" style={{ background: "var(--flavor-deep)", opacity: 0.7 }} />
-                <div className="relative h-[62vh] w-auto animate-float-cup">
-                  <img src={cupImg} alt={`${hero.name} bubble tea`} className="h-full w-auto object-contain drop-shadow-[0_30px_50px_rgba(0,0,0,0.4)] transition-[filter] duration-700" style={{ filter: `hue-rotate(${hero.hue}deg) saturate(1.15)` }} />
+                <div ref={cupWrapRef} className="relative h-[62vh] w-auto animate-float-cup">
+                  <img src={cupImg} alt={`${hero.name} bubble tea`} className="h-full w-auto object-contain drop-shadow-[0_30px_50px_rgba(0,0,0,0.4)] transition-[filter] duration-700" style={{ filter: hero.id === "choco" ? "saturate(1.7) brightness(0.62) sepia(0.45) hue-rotate(-12deg)" : `hue-rotate(${hero.hue}deg) saturate(1.15)` }} />
                   <img src={logoCup} alt="" className="absolute left-1/2 top-[54%] -translate-x-1/2 w-[19%] opacity-90 select-none" style={{ filter: "drop-shadow(0 3px 6px rgba(0,0,0,.25))" }} />
                 </div>
               </div>
@@ -467,7 +661,10 @@ function Reviews({ lang }: { lang: Lang }) {
       <div className="px-4 max-w-6xl mx-auto grid md:grid-cols-[1fr_2fr] gap-10 items-center mb-12">
         <div>
           <p className="text-xs uppercase tracking-[0.25em] text-muted-foreground mb-3">{t.proofKicker}</p>
-          <div className="font-display text-9xl text-primary leading-none">{shop.rating}</div>
+          <div className="font-display text-6xl text-primary leading-none mb-2">{shop.rating}
+            <span className="text-2xl text-muted-foreground ml-2">★</span>
+          </div>
+          <p className="mt-2 text-sm text-muted-foreground font-semibold">{shop.reviewCount} reviews</p>
           <p className="mt-3 text-muted-foreground">{t.reviewsCount}</p>
         </div>
         <h2 className="font-serif text-4xl md:text-5xl">{t.proofTitle1}<em className="italic text-primary">{t.proofTitleEm}</em></h2>
@@ -540,6 +737,32 @@ function Footer({ lang }: { lang: Lang }) {
   const t = TXT[lang];
   const [phone, setPhone] = useState("");
   const [sent, setSent] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  const handleNewsletterSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError("");
+    if (!phone.trim()) { setError("Please enter a phone number"); return; }
+    setLoading(true);
+    try {
+      // TODO: Replace with your backend endpoint (Mailchimp, Make.com, Zapier, etc.)
+      const response = await fetch("/api/newsletter", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ phone, lang }),
+      });
+      if (!response.ok) throw new Error("Submission failed");
+      setSent(true);
+      setPhone("");
+      setTimeout(() => setSent(false), 4000);
+    } catch (err) {
+      setError("Failed to subscribe. Please try again or contact us on WhatsApp.");
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
   return (
     <footer className="bg-ink text-cream mt-12 px-6 pt-[72px] pb-9">
       <div className="mx-auto max-w-6xl">
@@ -560,11 +783,12 @@ function Footer({ lang }: { lang: Lang }) {
           <div className="rounded-3xl p-7" style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.12)" }}>
             <h3 className="font-serif text-2xl m-0 mb-2 leading-tight">{t.footNewsTitle}</h3>
             <p className="m-0 mb-[18px] text-sm text-cream/65 leading-relaxed">{t.footNewsSub}</p>
-            <form onSubmit={(e) => { e.preventDefault(); setSent(true); }} className="flex gap-2.5 flex-wrap">
-              <input type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder={t.footNewsPlaceholder} className="flex-1 min-w-0 rounded-full px-5 py-3 text-[15px] text-cream outline-none" style={{ border: "1px solid rgba(255,255,255,0.25)", background: "rgba(0,0,0,0.2)", flexBasis: "180px" }} />
-              <button type="submit" className="rounded-full px-6 py-3 text-[15px] font-bold whitespace-nowrap" style={{ background: "oklch(0.82 0.13 50)", color: "oklch(0.22 0.04 30)", border: 0 }}>{t.footNewsBtn}</button>
+            <form onSubmit={handleNewsletterSubmit} className="flex gap-2.5 flex-wrap">
+              <input type="tel" value={phone} onChange={(e) => { setPhone(e.target.value); setError(""); }} disabled={loading || sent} placeholder={t.footNewsPlaceholder} className="flex-1 min-w-0 rounded-full px-5 py-3 text-[15px] text-cream outline-none disabled:opacity-60" style={{ border: "1px solid rgba(255,255,255,0.25)", background: "rgba(0,0,0,0.2)", flexBasis: "180px" }} />
+              <button type="submit" disabled={loading || sent} className="rounded-full px-6 py-3 text-[15px] font-bold whitespace-nowrap disabled:opacity-60" style={{ background: "oklch(0.82 0.13 50)", color: "oklch(0.22 0.04 30)", border: 0 }}>{loading ? "..." : t.footNewsBtn}</button>
             </form>
-            {sent && <p className="mt-3.5 mb-0 text-sm text-accent">{t.footThanks}</p>}
+            {sent && <p className="mt-3.5 mb-0 text-sm text-accent">✓ {t.footThanks}</p>}
+            {error && <p className="mt-3.5 mb-0 text-sm" style={{ color: "oklch(0.82 0.13 50)" }}>⚠ {error}</p>}
           </div>
         </div>
 
