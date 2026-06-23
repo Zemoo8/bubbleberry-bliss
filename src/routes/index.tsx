@@ -41,6 +41,34 @@ const FRUIT_SLOTS = [
 ];
 const TOP3 = ["fraise", "mangue", "passion"];
 
+// Icons for the "New to boba?" cards — burgundy via currentColor (text-primary)
+const NEW_ICONS = [
+  // 1 — tea cup with pearls
+  <svg key="tea" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+    <path d="M6.6 8h10.8l-0.95 11.7a1.4 1.4 0 0 1-1.4 1.3H8.95a1.4 1.4 0 0 1-1.4-1.3z" />
+    <path d="M6.9 11.3h10.2" />
+    <path d="M14.6 8 16.8 3.4" />
+    <circle cx="10" cy="16.6" r="1" fill="currentColor" stroke="none" />
+    <circle cx="13" cy="17.2" r="1" fill="currentColor" stroke="none" />
+    <circle cx="12" cy="15" r="1" fill="currentColor" stroke="none" />
+  </svg>,
+  // 2 — strawberry
+  <svg key="berry" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+    <path d="M12 21.5c-4 0-6.9-3-6.9-6.7 0-2.7 3-4.9 6.9-4.9s6.9 2.2 6.9 4.9C18.9 18.5 16 21.5 12 21.5z" />
+    <path d="M8.4 5.2C9.8 6.9 12 7.3 12 7.3s2.2-.4 3.6-2.1" />
+    <path d="M12 7.3v2.6" />
+    <circle cx="9.8" cy="14.6" r="0.7" fill="currentColor" stroke="none" />
+    <circle cx="13.4" cy="15.1" r="0.7" fill="currentColor" stroke="none" />
+    <circle cx="11.7" cy="17.4" r="0.7" fill="currentColor" stroke="none" />
+  </svg>,
+  // 3 — shop front
+  <svg key="shop" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+    <path d="M4.5 10.5V20h15v-9.5" />
+    <path d="M3.2 10.5 4.7 5h14.6l1.5 5.5a2.15 2.15 0 0 1-4.2 0 2.15 2.15 0 0 1-4.15 0 2.15 2.15 0 0 1-4.15 0 2.15 2.15 0 0 1-4.2 0z" />
+    <path d="M10 20v-5h4v5" />
+  </svg>,
+];
+
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
@@ -100,7 +128,21 @@ function Index() {
       `}</style>
 
       {/* ===================== HERO ===================== */}
-      <section id="top" style={{ ...heroVars, background: "radial-gradient(ellipse at 50% 65%, var(--flavor) 0%, var(--flavor-deep) 60%, color-mix(in oklab, var(--flavor-deep) 70%, black) 100%)" }} className="relative min-h-screen overflow-hidden transition-colors duration-[900ms] ease-out">
+      <section id="top" style={{ ...heroVars }} className="relative min-h-screen overflow-hidden">
+        {/* crossfading gradient layers — one per flavor, only the active one is opaque */}
+        <div className="absolute inset-0 z-0">
+          {flavors.map((f) => (
+            <div
+              key={f.id}
+              aria-hidden
+              className="absolute inset-0 transition-opacity duration-700 ease-[cubic-bezier(.4,0,.2,1)]"
+              style={{
+                opacity: f.id === heroId ? 1 : 0,
+                background: `radial-gradient(ellipse at 50% 65%, ${f.color} 0%, ${f.deep} 60%, color-mix(in oklab, ${f.deep} 70%, black) 100%)`,
+              }}
+            />
+          ))}
+        </div>
         <div className="pointer-events-none absolute top-[30%] left-[6%] size-32 rounded-full blur-2xl animate-blob" style={{ background: "var(--flavor)", opacity: 0.6 }} />
         <div className="pointer-events-none absolute top-[40%] right-[8%] size-40 rounded-full blur-2xl animate-blob" style={{ background: "var(--flavor)", opacity: 0.5, animationDelay: "-5s" }} />
         <div className="pointer-events-none absolute bottom-[20%] left-[15%] size-24 rounded-full blur-2xl animate-blob" style={{ background: "var(--flavor-deep)", opacity: 0.5, animationDelay: "-8s" }} />
@@ -172,12 +214,13 @@ function Index() {
             <span className="font-serif italic text-primary text-2xl">{t.newKicker}</span>
             <h2 className="font-serif text-3xl md:text-4xl m-0">{t.newTitle}</h2>
           </div>
-          <div className="grid md:grid-cols-3 gap-7">
+          <div className="grid md:grid-cols-3 gap-6">
             {t.newLines.map((line, i) => (
-              <div key={i} className="flex gap-3.5 items-start">
-                <span className="font-display text-xl text-primary leading-none flex-none">{i + 1}</span>
+              <article key={i} className="rounded-3xl bg-cream p-8 border border-black/[0.05] shadow-[0_12px_34px_-18px_rgba(0,0,0,0.3)] flex flex-col items-start gap-4 transition-all duration-300 ease-out hover:-translate-y-1 hover:shadow-[0_30px_58px_-28px_rgba(60,20,20,0.5)]">
+                <span className="text-primary" aria-hidden>{NEW_ICONS[i]}</span>
+                <span className="font-display text-sm tracking-[0.16em] uppercase text-primary">{t.step} {String(i + 1).padStart(2, "0")}</span>
                 <p className="m-0 text-base leading-relaxed text-foreground/75">{line}</p>
-              </div>
+              </article>
             ))}
           </div>
         </div>
@@ -200,10 +243,10 @@ function Index() {
           </div>
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-[18px]">
             {menu.map((m) => (
-              <article key={m.key} className="rounded-[20px] overflow-hidden flex flex-col" style={{ background: "#f8f3e8", border: "1px solid rgba(0,0,0,0.04)", boxShadow: "0 8px 22px -12px rgba(0,0,0,.25)" }}>
+              <article key={m.key} className="group rounded-[20px] overflow-hidden flex flex-col transition-all duration-300 ease-out hover:-translate-y-1 hover:shadow-[0_18px_36px_-16px_rgba(0,0,0,0.3)]" style={{ background: "#f8f3e8", border: "1px solid rgba(0,0,0,0.04)", boxShadow: "0 8px 22px -12px rgba(0,0,0,.25)" }}>
                 <div className="relative h-[210px] flex items-end justify-center overflow-hidden">
                   {m.best && <span className="absolute top-2.5 left-2.5 z-[2] rounded-full px-2.5 py-1 text-[11px] font-bold uppercase tracking-wide" style={{ background: "oklch(0.42 0.16 12)", color: "oklch(0.97 0.02 80)" }}>{t.bestseller}</span>}
-                  <img src={MENU_IMG[m.key]} alt={(fr ? m.fr : m.en).name} className="h-[204px] w-auto object-contain" />
+                  <img src={MENU_IMG[m.key]} alt={(fr ? m.fr : m.en).name} className="h-[204px] w-auto object-contain transition-transform duration-500 ease-out group-hover:scale-[1.06]" />
                 </div>
                 <div className="p-4 pb-[18px] flex flex-col gap-1.5 flex-1">
                   <div className="flex items-baseline justify-between gap-2">

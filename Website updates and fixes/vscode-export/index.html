@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Booble — Bubble Tea, La Marsa</title>
+  <meta name="description" content="Real Taiwanese tea, fresh fruit and homemade tapioca. Build your own cup and order on Glovo. Rue Imam Chafai, La Marsa.">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,400;1,9..144,600&family=Caveat:wght@500;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- ============================ HERO ============================ -->
+  <section id="top" class="hero">
+    <!-- two stacked gradient layers crossfade between flavors -->
+    <div class="hero__bg hero__bg--a is-active"></div>
+    <div class="hero__bg hero__bg--b"></div>
+
+    <!-- soft glow blobs -->
+    <div class="hero__blob hero__blob--1"></div>
+    <div class="hero__blob hero__blob--2"></div>
+    <div class="hero__blob hero__blob--3"></div>
+
+    <!-- floating fruits (filled + crossfaded by JS) -->
+    <div class="hero__fruits" id="heroFruits"></div>
+
+    <!-- header -->
+    <header class="header">
+      <a href="#top" class="brand">
+        <img src="assets/logo-mark-white.png" alt="Booble" class="brand__mark">
+        <span class="brand__name">booble</span>
+      </a>
+      <nav class="nav">
+        <a href="#build" data-i18n="navBuild">Build your cup</a>
+        <a href="#menu" data-i18n="navMenu">Menu</a>
+        <a href="#why" data-i18n="navWhy">Why us</a>
+        <a href="#visit" data-i18n="navVisit">Visit</a>
+      </nav>
+      <div class="header__actions">
+        <div class="lang" role="group" aria-label="Language">
+          <button type="button" class="lang__btn is-active" data-lang="en">EN</button>
+          <button type="button" class="lang__btn" data-lang="fr">FR</button>
+        </div>
+        <a href="#build" class="btn btn--solid" data-i18n="orderNow">Order now</a>
+      </div>
+    </header>
+
+    <!-- carousel arrows -->
+    <button type="button" class="hero__arrow hero__arrow--prev" id="heroPrev" aria-label="Previous flavor"><span class="chevron chevron--left"></span></button>
+    <button type="button" class="hero__arrow hero__arrow--next" id="heroNext" aria-label="Next flavor"><span class="chevron chevron--right"></span></button>
+
+    <div class="hero__center">
+      <p class="hero__kicker" data-i18n="heroKicker">Build your</p>
+      <div class="hero__title-wrap">
+        <h1 class="hero__title">booble tea</h1>
+        <div class="hero__cup">
+          <div class="hero__cup-glow"></div>
+          <div class="hero__cup-float">
+            <img src="assets/cup.png" alt="Bubble tea" class="hero__cup-img" id="heroCup">
+            <img src="assets/logo-cup-4.png" alt="" class="hero__cup-logo">
+          </div>
+        </div>
+        <div class="hero__side hero__side--left" data-i18n="since">since 2021</div>
+        <div class="hero__side hero__side--right" data-i18n="bestOf">best of la marsa · 4.7★</div>
+      </div>
+    </div>
+
+    <div class="hero__cta">
+      <a href="#build" class="btn btn--solid btn--lg" data-i18n="ctaBuild">Build your cup ↓</a>
+      <a href="#" class="btn btn--ghost btn--lg js-order" data-i18n="ctaGlovo">Order on Glovo</a>
+    </div>
+  </section>
+
+  <!-- ======================= NEW TO BOBA ======================= -->
+  <section id="new" class="new">
+    <div class="wrap wrap--md">
+      <div class="section-head">
+        <span class="script" data-i18n="newKicker">First time?</span>
+        <h2 class="h2" data-i18n="newTitle">New to boba?</h2>
+      </div>
+      <div class="new__grid">
+        <article class="new-card">
+          <svg class="new-card__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6.6 8h10.8l-0.95 11.7a1.4 1.4 0 0 1-1.4 1.3H8.95a1.4 1.4 0 0 1-1.4-1.3z"></path><path d="M6.9 11.3h10.2"></path><path d="M14.6 8 16.8 3.4"></path><circle cx="10" cy="16.6" r="1" fill="currentColor" stroke="none"></circle><circle cx="13" cy="17.2" r="1" fill="currentColor" stroke="none"></circle><circle cx="12" cy="15" r="1" fill="currentColor" stroke="none"></circle></svg>
+          <span class="new-card__step"><span data-i18n="step">Step</span> 01</span>
+          <p class="new-card__text" data-i18n="newLine0">Boba (bubble tea) is iced tea with chewy tapioca pearls you sip through a fat straw.</p>
+        </article>
+        <article class="new-card">
+          <svg class="new-card__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21.5c-4 0-6.9-3-6.9-6.7 0-2.7 3-4.9 6.9-4.9s6.9 2.2 6.9 4.9C18.9 18.5 16 21.5 12 21.5z"></path><path d="M8.4 5.2C9.8 6.9 12 7.3 12 7.3s2.2-.4 3.6-2.1"></path><path d="M12 7.3v2.6"></path><circle cx="9.8" cy="14.6" r="0.7" fill="currentColor" stroke="none"></circle><circle cx="13.4" cy="15.1" r="0.7" fill="currentColor" stroke="none"></circle><circle cx="11.7" cy="17.4" r="0.7" fill="currentColor" stroke="none"></circle></svg>
+          <span class="new-card__step"><span data-i18n="step">Step</span> 02</span>
+          <p class="new-card__text" data-i18n="newLine1">Pick a tea, a fruit flavour and your pearls — sweet, fruity, and a little bit fun.</p>
+        </article>
+        <article class="new-card">
+          <svg class="new-card__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.5 10.5V20h15v-9.5"></path><path d="M3.2 10.5 4.7 5h14.6l1.5 5.5a2.15 2.15 0 0 1-4.2 0 2.15 2.15 0 0 1-4.15 0 2.15 2.15 0 0 1-4.15 0 2.15 2.15 0 0 1-4.2 0z"></path><path d="M10 20v-5h4v5"></path></svg>
+          <span class="new-card__step"><span data-i18n="step">Step</span> 03</span>
+          <p class="new-card__text" data-i18n="newLine2">Not sure? Ask us in the shop. We'll happily build your first one with you.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================= BUILD YOUR CUP ======================= -->
+  <section id="build" class="build">
+    <div class="wrap">
+      <p class="kicker kicker--deep" data-i18n="buildKicker">n° 01 — make it yours</p>
+      <h2 class="h2 h2--xl" data-i18n="buildTitle">Build your cup.</h2>
+      <p class="lede" data-i18n="buildIntro">Pick a size, a tea base, a fruit syrup and your pearls. Watch it come together, then send your order straight to Glovo.</p>
+
+      <div class="build__grid">
+        <!-- live preview -->
+        <div class="build__preview-col">
+          <div class="preview" id="previewCard">
+            <div class="cup" id="cupPreview">
+              <div class="cup__straw"></div>
+              <div class="cup__lid"></div>
+              <div class="cup__body">
+                <div class="cup__liquid" id="cupLiquid"></div>
+                <div class="cup__foam"></div>
+                <div class="cup__pearls" id="cupPearls"></div>
+                <div class="cup__shine"></div>
+              </div>
+              <img src="assets/logo-cup-4.png" alt="" class="cup__logo">
+            </div>
+            <p class="preview__summary" id="previewSummary"></p>
+          </div>
+        </div>
+
+        <!-- steps -->
+        <div class="build__steps">
+          <div class="step">
+            <p class="step__label"><svg class="step__ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M6 4h12l-1.4 15.6a1.2 1.2 0 0 1-1.2 1.1H8.6a1.2 1.2 0 0 1-1.2-1.1z"></path><path d="M6.6 9h10.8"></path></svg><span class="step__num"><span data-i18n="step">Step</span> 1</span> · <span data-i18n="stepSize">Your size</span></p>
+            <div class="opt-row" id="sizeOpts"></div>
+          </div>
+
+          <div class="step">
+            <p class="step__label"><svg class="step__ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20c10 0 16-6 16-16C10 4 4 10 4 20z"></path><path d="M5 19c4-5 8-8 13-11"></path></svg><span class="step__num"><span data-i18n="step">Step</span> 2</span> · <span data-i18n="stepBase">Your tea base</span></p>
+            <div class="opt-grid opt-grid--3" id="baseOpts"></div>
+          </div>
+
+          <div class="step">
+            <p class="step__label"><svg class="step__ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21c-3.6 0-6.5-2.9-6.5-6.5 0-2.3 2.9-4.5 6.5-4.5s6.5 2.2 6.5 4.5C18.5 18.1 15.6 21 12 21z"></path><path d="M9 4.5C10 6 12 6.5 12 6.5S14 6 15 4.5"></path><path d="M12 6.5V10"></path></svg><span class="step__num"><span data-i18n="step">Step</span> 3</span> · <span data-i18n="stepSyrup">Your fruit syrup</span></p>
+            <div class="opt-grid opt-grid--4" id="flavorOpts"></div>
+          </div>
+
+          <div class="step">
+            <p class="step__label"><svg class="step__ico" viewBox="0 0 24 24" fill="currentColor" stroke="none"><circle cx="7" cy="14.5" r="2.3"></circle><circle cx="12" cy="16" r="2.3"></circle><circle cx="17" cy="14.5" r="2.3"></circle><circle cx="9.5" cy="10.5" r="2"></circle><circle cx="14.5" cy="10.5" r="2"></circle></svg><span class="step__num"><span data-i18n="step">Step</span> 4</span> · <span data-i18n="stepPearls">Your pearls</span></p>
+            <div class="opt-wrap" id="bobaOpts"></div>
+          </div>
+
+          <div class="note" id="flavorNote"></div>
+
+          <div class="order-bar">
+            <div>
+              <p class="order-bar__label" data-i18n="yourCup">Your cup</p>
+              <p class="order-bar__summary" id="orderSummary"></p>
+            </div>
+            <div class="order-bar__right">
+              <div class="order-bar__price">
+                <p class="order-bar__approx" data-i18n="approx">approx.</p>
+                <p class="order-bar__amount"><span id="orderPrice">16</span> DT</p>
+              </div>
+              <a href="#" class="btn btn--deep btn--lg js-order" id="orderBtn" data-i18n="orderGlovo">Order on Glovo →</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================ MENU ============================ -->
+  <section id="menu" class="menu">
+    <div class="wrap wrap--xl">
+      <div class="section-head section-head--split">
+        <div>
+          <p class="kicker kicker--burgundy" data-i18n="menuKicker">n° 02 — the favourites</p>
+          <h2 class="h2 h2--lg" data-i18n="menuTitle">The menu.</h2>
+          <p class="lede lede--sm" data-i18n="menuIntro">Our six most-ordered cups. Or compose your own above.</p>
+        </div>
+        <a href="#" class="link-underline js-order" data-i18n="menuCta">See full menu on Glovo →</a>
+      </div>
+      <div class="menu__grid" id="menuGrid"></div>
+    </div>
+  </section>
+
+  <!-- ============================ WHY ============================ -->
+  <section id="why" class="why">
+    <div class="wrap wrap--md">
+      <p class="kicker" data-i18n="whyKicker">n° 03 / the craft</p>
+      <h2 class="h2 h2--lg why__title">
+        <span data-i18n="whyTitle1">Why people drive across Tunis for a </span><em>Booble</em><span data-i18n="whyTitle2">.</span>
+      </h2>
+      <div class="why__grid" id="whyGrid"></div>
+    </div>
+  </section>
+
+  <!-- =========================== GALLERY =========================== -->
+  <section id="shop" class="gallery">
+    <div class="wrap wrap--xl">
+      <div class="section-head section-head--split">
+        <div>
+          <p class="kicker kicker--gold" data-i18n="shopKicker">n° 04 — in the shop</p>
+          <h2 class="h2 h2--xxl gallery__title"><span data-i18n="shopTitle1">Pink flamingos.</span><br><em data-i18n="shopTitle2">Neon cups. Real chairs.</em></h2>
+        </div>
+        <a href="https://www.instagram.com/bubble_tea_booble_marsa/" target="_blank" rel="noopener noreferrer" class="link-underline link-underline--light" data-i18n="follow">Follow @bubble_tea_booble_marsa →</a>
+      </div>
+      <div class="gallery__grid">
+        <figure class="gallery__fig gallery__fig--tall"><img src="assets/shop-1.jpg" alt="Booble storefront"></figure>
+        <figure class="gallery__fig gallery__fig--tall"><img src="assets/shop-2.jpg" alt="Latte cheesecake fraise"></figure>
+        <figure class="gallery__fig"><img src="assets/shop-6.jpg" alt="Sprinkle crepe cone"></figure>
+        <figure class="gallery__fig gallery__fig--tall"><img src="assets/shop-3.jpg" alt="Two iced bubble teas"></figure>
+        <figure class="gallery__fig"><img src="assets/shop-4.jpg" alt="Matcha bubble tea"></figure>
+        <figure class="gallery__fig gallery__fig--wide"><img src="assets/shop-5.jpg" alt="Pink interior with rattan chairs"></figure>
+      </div>
+    </div>
+  </section>
+
+  <!-- =========================== REVIEWS =========================== -->
+  <section id="reviews" class="reviews">
+    <div class="wrap wrap--md reviews__head">
+      <div>
+        <p class="kicker" data-i18n="proofKicker">n° 05 / the proof</p>
+        <div class="reviews__score">4.7</div>
+        <p class="reviews__count" data-i18n="reviewsCount">230+ reviews on Google</p>
+      </div>
+      <h2 class="h2 h2--md"><span data-i18n="proofTitle1">What La Marsa says </span><em data-i18n="proofTitleEm">about us.</em></h2>
+    </div>
+    <div class="reviews__marquee">
+      <div class="reviews__track" id="reviewsTrack"></div>
+    </div>
+  </section>
+
+  <!-- ============================ VISIT ============================ -->
+  <section id="visit" class="visit">
+    <div class="visit__card">
+      <div class="visit__info">
+        <p class="kicker kicker--light" data-i18n="visitKicker">n° 06 / come say hi</p>
+        <h2 class="h2 h2--lg visit__title"><span data-i18n="visitTitle1">On rue Imam Chafai, </span><em data-i18n="visitTitleEm">two minutes</em><span data-i18n="visitTitle2"> from the corniche.</span></h2>
+
+        <dl class="visit__dl">
+          <div class="visit__row">
+            <dt data-i18n="address">Address</dt>
+            <dd>2 Rue Imam Chafai, Marsa 2070</dd>
+          </div>
+          <div class="visit__row">
+            <dt data-i18n="phone">Phone</dt>
+            <dd>21 187 136</dd>
+          </div>
+        </dl>
+
+        <p class="visit__hours-label" data-i18n="openingHours">Opening hours</p>
+        <div class="visit__hours" id="hoursList"></div>
+
+        <div class="visit__tags">
+          <span class="tag" data-i18n="svcDinein">Dine-in</span>
+          <span class="tag" data-i18n="svcDrive">Drive-through</span>
+          <span class="tag" data-i18n="svcDelivery">Delivery</span>
+        </div>
+        <a href="https://www.google.com/maps/search/?api=1&query=Booble%20bubble%20tea%202%20Rue%20Imam%20Chafai%20Marsa%202070" target="_blank" rel="noopener noreferrer" class="btn btn--solid visit__maps" data-i18n="openMaps">Open in Google Maps →</a>
+      </div>
+
+      <div class="visit__map">
+        <iframe title="Booble La Marsa map" src="https://maps.google.com/maps?q=2%20Rue%20Imam%20Chafai%2C%20Marsa%202070&t=&z=16&ie=UTF8&iwloc=&output=embed" loading="lazy"></iframe>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================ FOOTER ============================ -->
+  <footer class="footer">
+    <div class="wrap wrap--md">
+      <div class="footer__top">
+        <div>
+          <div class="footer__brand">
+            <img src="assets/logo-mark-white.png" alt="Booble">
+            <span>booble</span>
+          </div>
+          <p class="footer__tag" data-i18n="footTag">Real Taiwanese tea, fresh fruit and homemade tapioca — served on rue Imam Chafai, La Marsa.</p>
+          <div class="footer__social">
+            <a href="https://www.instagram.com/bubble_tea_booble_marsa/" target="_blank" rel="noopener noreferrer" class="pill">Instagram</a>
+            <a href="https://wa.me/21621187136" target="_blank" rel="noopener noreferrer" class="pill">WhatsApp</a>
+            <a href="https://www.google.com/maps/search/?api=1&query=Booble%20bubble%20tea%202%20Rue%20Imam%20Chafai%20Marsa%202070" target="_blank" rel="noopener noreferrer" class="pill">Maps</a>
+          </div>
+        </div>
+
+        <div class="news">
+          <h3 class="news__title" data-i18n="footNewsTitle">A free topping on your next cup.</h3>
+          <p class="news__sub" data-i18n="footNewsSub">Drop your number — we send the secret menu and one-off deals on WhatsApp. No spam, just boba.</p>
+          <form class="news__form" id="signupForm">
+            <input type="tel" id="signupPhone" class="news__input" placeholder="Your phone number" data-i18n-ph="footNewsPlaceholder">
+            <button type="submit" class="news__btn" data-i18n="footNewsBtn">Join on WhatsApp</button>
+          </form>
+          <p class="news__msg" id="signupMsg"></p>
+        </div>
+      </div>
+
+      <div class="footer__bottom">
+        <a href="https://wa.me/21621187136" target="_blank" rel="noopener noreferrer" class="footer__hiring" data-i18n="footHiring">We're hiring baristas who smile — pass by with a CV →</a>
+        <p class="footer__rights" data-i18n="footRights">© 2026 Booble La Marsa. Made with real tea and stubbornness.</p>
+      </div>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
