@@ -320,7 +320,7 @@ function Index() {
       `}</style>
 
       {/* ===================== HERO ===================== */}
-      <section id="top" style={{ ...heroVars }} className="relative min-h-screen overflow-hidden">
+      <section id="top" style={{ ...heroVars, WebkitTransform: "translateZ(0)", transform: "translateZ(0)" } as React.CSSProperties} className="relative min-h-screen overflow-hidden">
         {/* crossfading gradient layers — one per flavor, only the active one is opaque */}
         <div className="absolute inset-0 z-0">
           {flavors.map((f) => (
@@ -342,7 +342,7 @@ function Index() {
         <div className="pointer-events-none absolute inset-0 z-20">
           {FRUIT_SLOTS.map((s, i) => (
             <div key={i} className="absolute" style={{ top: s.top, left: s.left, width: s.size, height: s.size, transform: `translate(-50%,-50%) translateY(calc(var(--sy,0) * ${s.depth}px))` }}>
-              <div ref={(el) => { fruitRefs.current[i] = el; }} className="absolute left-1/2 top-1/2 h-full w-full -translate-x-1/2 -translate-y-1/2 will-change-transform">
+              <div ref={(el) => { fruitRefs.current[i] = el; }} className="absolute left-1/2 top-1/2 h-full w-full -translate-x-1/2 -translate-y-1/2">
                 <img src={FRUIT[hero.id]} alt="" aria-hidden className="w-full h-full object-contain" style={{ transform: `rotate(${s.rot}deg)`, filter: s.blur ? `blur(${s.blur}px) drop-shadow(0 12px 18px rgba(0,0,0,.25))` : "drop-shadow(0 14px 22px rgba(0,0,0,.3))", opacity: s.blur ? 0.85 : 1 }} />
               </div>
             </div>
